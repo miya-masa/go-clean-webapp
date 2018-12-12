@@ -19,7 +19,7 @@ func NewTransaction(db *sqlx.DB) transaction.Transaction {
 }
 
 func (t *tx) DoInTx(ctx context.Context, f func(ctx context.Context) (interface{}, error)) (interface{}, error) {
-	tx, err := t.db.BeginTx(ctx, &sql.TxOptions{})
+	tx, err := t.db.BeginTxx(ctx, &sql.TxOptions{})
 	if err != nil {
 		return nil, err
 	}
@@ -37,4 +37,19 @@ func (t *tx) DoInTx(ctx context.Context, f func(ctx context.Context) (interface{
 func GetTxFromContext(ctx context.Context) (*sqlx.Tx, bool) {
 	tx, ok := ctx.Value(&txKey).(*sqlx.Tx)
 	return tx, ok
+}
+
+func DoInTx(ctx context.Context, db *sqlx.DB, f func(tx *sqlx.Tx) (interface{}, error)) (interface{}, error) {
+	tx, err := db.BeginTxx(ctx, &sql.TxOptions{})
+	if err != nil {
+		return nil, err
+	}
+	v, err := f(tx)
+	if err != nil {
+		return nil, tx.Rollback()
+	}
+	if err := tx.Commit(); err != nil {
+		return nil, tx.Rollback()
+	}
+	return v, nil
 }
