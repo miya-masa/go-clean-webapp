@@ -1,0 +1,11 @@
+version: '3.5'
+services:
+  # postgres
+  db:
+    image: postgres:latest
+    ports:
+      - 5432:5432
+    environment:
+      POSTGRES_USER: miya
+      POSTGRES_PASSWORD: miya
+      POSTGRES_DB: miya
