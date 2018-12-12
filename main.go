@@ -9,9 +9,9 @@ import (
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
 	"github.com/jmoiron/sqlx"
-	"github.com/miya-masa/go-tx-sandbox/domain/usecase"
-	"github.com/miya-masa/go-tx-sandbox/interface/database"
-	"github.com/miya-masa/go-tx-sandbox/web"
+	"github.com/miya-masa/go-clean-webapp/interface/database"
+	"github.com/miya-masa/go-clean-webapp/usecase"
+	"github.com/miya-masa/go-clean-webapp/web"
 	"github.com/urfave/cli"
 )
 

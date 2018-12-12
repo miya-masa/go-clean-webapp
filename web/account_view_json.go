@@ -3,7 +3,7 @@ package web
 import (
 	"net/http"
 
-	"github.com/miya-masa/go-tx-sandbox/interface/presenter"
+	"github.com/miya-masa/go-clean-webapp/interface/presenter"
 )
 
 type AccountJsonView struct {

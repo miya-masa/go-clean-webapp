@@ -5,8 +5,8 @@ import (
 	"net/http"
 
 	"github.com/go-chi/chi"
-	"github.com/miya-masa/go-tx-sandbox/domain/usecase"
-	"github.com/miya-masa/go-tx-sandbox/interface/presenter"
+	"github.com/miya-masa/go-clean-webapp/interface/presenter"
+	"github.com/miya-masa/go-clean-webapp/usecase"
 )
 
 type AccountHandler struct {

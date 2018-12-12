@@ -1,6 +1,6 @@
 package presenter
 
-import "github.com/miya-masa/go-tx-sandbox/domain/entity"
+import "github.com/miya-masa/go-clean-webapp/domain/entity"
 
 type AccountViewModel struct {
 	UUID           string `json:"uuid"`

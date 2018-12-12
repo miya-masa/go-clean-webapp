@@ -3,7 +3,7 @@ package web
 import (
 	"net/http"
 
-	"github.com/miya-masa/go-tx-sandbox/domain/entity"
+	"github.com/miya-masa/go-clean-webapp/domain/entity"
 )
 
 type DepartmentJsonView struct {

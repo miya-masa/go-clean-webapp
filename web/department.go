@@ -3,7 +3,7 @@ package web
 import (
 	"net/http"
 
-	"github.com/miya-masa/go-tx-sandbox/domain/usecase"
+	"github.com/miya-masa/go-clean-webapp/usecase"
 )
 
 type DepartmentHandler struct {

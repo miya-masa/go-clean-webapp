@@ -3,7 +3,7 @@ package usecase
 import (
 	"context"
 
-	"github.com/miya-masa/go-tx-sandbox/domain/entity"
+	"github.com/miya-masa/go-clean-webapp/domain/entity"
 )
 
 type DepartmentStoreInput struct {
