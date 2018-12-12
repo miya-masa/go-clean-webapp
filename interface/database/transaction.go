@@ -26,15 +26,17 @@ func (t *tx) DoInTx(ctx context.Context, f func(ctx context.Context) (interface{
 	ctx = context.WithValue(ctx, &txKey, tx)
 	v, err := f(ctx)
 	if err != nil {
-		return nil, tx.Rollback()
+		tx.Rollback()
+		return nil, err
 	}
 	if err := tx.Commit(); err != nil {
-		return nil, tx.Rollback()
+		tx.Rollback()
+		return nil, err
 	}
 	return v, nil
 }
 
-func GetTxFromContext(ctx context.Context) (*sqlx.Tx, bool) {
+func GetTx(ctx context.Context) (*sqlx.Tx, bool) {
 	tx, ok := ctx.Value(&txKey).(*sqlx.Tx)
 	return tx, ok
 }
