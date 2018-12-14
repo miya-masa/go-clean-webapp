@@ -2,6 +2,7 @@ package database
 
 import (
 	"context"
+	"database/sql"
 
 	"github.com/jmoiron/sqlx"
 	"github.com/miya-masa/go-clean-webapp/domain/entity"
@@ -18,7 +19,7 @@ func NewAccount(db *sqlx.DB) entity.AccountRepository {
 func (u *accountRepository) Find(ctx context.Context, id string) (*entity.Account, error) {
 	account := &entity.Account{}
 	query := `select
-	a.uuid as uuid,
+a.uuid as uuid,
 		a.first_name as first_name,
 		a.last_name as last_name,
 		d.uuid as "department.uuid",
@@ -36,16 +37,17 @@ func (u *accountRepository) Find(ctx context.Context, id string) (*entity.Accoun
 
 func (u *accountRepository) Store(ctx context.Context, account *entity.Account) (*entity.Account, error) {
 
-	val, err := DoInTx(u.db, func(tx *sqlx.Tx) (interface{}, error) {
-		if _, err := tx.NamedExec("INSERT INTO account(uuid, department_uuid, first_name, last_name) VALUES(:uuid, :department.uuid, :first_name, :last_name)", account); err != nil {
-			return nil, err
-		}
-		return account, nil
-	})
-	if err != nil {
+	var dao interface {
+		NamedExec(query string, arg interface{}) (sql.Result, error)
+	}
+	dao, ok := GetTx(ctx)
+	if !ok {
+		dao = u.db
+	}
+	if _, err := dao.NamedExec("INSERT INTO account(uuid, department_uuid, first_name, last_name) VALUES(:uuid, :department.uuid, :first_name, :last_name)", account); err != nil {
 		return nil, err
 	}
-	return val.(*entity.Account), nil
+	return account, nil
 }
 
 func (u *accountRepository) Delete(ctx context.Context, id string) (int, error) {

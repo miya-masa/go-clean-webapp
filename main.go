@@ -61,11 +61,11 @@ func serve() error {
 	departmentRepository := database.NewDepartment(db)
 
 	uh := &web.AccountHandler{
-		Usecase: usecase.NewAccountInteractor(accountRepository, departmentRepository),
+		Usecase: usecase.NewAccountInteractor(accountRepository, departmentRepository, database.NewTransaction(db)),
 	}
 
 	dh := &web.DepartmentHandler{
-		Usecase: usecase.NewDepartmentInteractor(departmentRepository),
+		Usecase: usecase.NewDepartmentInteractor(departmentRepository, database.NewTransaction(db)),
 	}
 
 	r := chi.NewRouter()

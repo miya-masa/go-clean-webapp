@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/miya-masa/go-clean-webapp/domain/entity"
+	"github.com/miya-masa/go-clean-webapp/transaction"
 )
 
 type DepartmentStoreInput struct {
@@ -17,12 +18,13 @@ type DepartmentInputPort interface {
 	Delete(ctx context.Context, id string) (int, error)
 }
 
-func NewDepartmentInteractor(dr entity.DepartmentRepository) DepartmentInputPort {
-	return &departmentInteractor{departmentRepository: dr}
+func NewDepartmentInteractor(dr entity.DepartmentRepository, tx transaction.Transaction) DepartmentInputPort {
+	return &departmentInteractor{departmentRepository: dr, tx: tx}
 }
 
 type departmentInteractor struct {
 	departmentRepository entity.DepartmentRepository
+	tx                   transaction.Transaction
 }
 
 func (u *departmentInteractor) Find(ctx context.Context, id string) (*entity.Department, error) {
@@ -30,10 +32,13 @@ func (u *departmentInteractor) Find(ctx context.Context, id string) (*entity.Dep
 }
 
 func (u *departmentInteractor) Store(ctx context.Context, in *DepartmentStoreInput) error {
-	return u.departmentRepository.Store(ctx, &entity.Department{
-		UUID: genUUID(),
-		Name: in.Name,
+	_, err := u.tx.DoInTx(ctx, func(ctx context.Context) (interface{}, error) {
+		return nil, u.departmentRepository.Store(ctx, &entity.Department{
+			UUID: genUUID(),
+			Name: in.Name,
+		})
 	})
+	return err
 }
 
 func (u *departmentInteractor) Delete(ctx context.Context, id string) (int, error) {

@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/miya-masa/go-clean-webapp/domain/entity"
+	"github.com/miya-masa/go-clean-webapp/transaction"
 	uuid "github.com/satori/go.uuid"
 )
 
@@ -19,16 +20,18 @@ type AccountInputPort interface {
 	Delete(ctx context.Context, id string) (int, error)
 }
 
-func NewAccountInteractor(ar entity.AccountRepository, dr entity.DepartmentRepository) AccountInputPort {
+func NewAccountInteractor(ar entity.AccountRepository, dr entity.DepartmentRepository, tx transaction.Transaction) AccountInputPort {
 	return &accountInteractor{
 		accountRepository:    ar,
 		departmentRepository: dr,
+		trancaction:          tx,
 	}
 }
 
 type accountInteractor struct {
 	accountRepository    entity.AccountRepository
 	departmentRepository entity.DepartmentRepository
+	trancaction          transaction.Transaction
 }
 
 func (u *accountInteractor) Find(ctx context.Context, id string) (*entity.Account, error) {
@@ -36,16 +39,19 @@ func (u *accountInteractor) Find(ctx context.Context, id string) (*entity.Accoun
 }
 
 func (u *accountInteractor) Store(ctx context.Context, in *AccountStoreInput) (*entity.Account, error) {
-	dep, err := u.departmentRepository.Find(ctx, in.DepartmentUUID)
-	if err != nil {
-		return nil, err
-	}
-	return u.accountRepository.Store(ctx, &entity.Account{
-		UUID:       genUUID(),
-		Department: dep,
-		FirstName:  in.FirstName,
-		LastName:   in.LastName,
+	v, err := u.trancaction.DoInTx(ctx, func(ctx context.Context) (interface{}, error) {
+		dep, err := u.departmentRepository.Find(ctx, in.DepartmentUUID)
+		if err != nil {
+			return nil, err
+		}
+		return u.accountRepository.Store(ctx, &entity.Account{
+			UUID:       genUUID(),
+			Department: dep,
+			FirstName:  in.FirstName,
+			LastName:   in.LastName,
+		})
 	})
+	return v.(*entity.Account), err
 }
 
 func (u *accountInteractor) Delete(ctx context.Context, id string) (int, error) {
