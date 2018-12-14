@@ -58,14 +58,9 @@ func serve() error {
 	}
 
 	accountRepository := database.NewAccount(db)
-	departmentRepository := database.NewDepartment(db)
 
 	uh := &web.AccountHandler{
-		Usecase: usecase.NewAccountInteractor(accountRepository, departmentRepository),
-	}
-
-	dh := &web.DepartmentHandler{
-		Usecase: usecase.NewDepartmentInteractor(departmentRepository),
+		Usecase: usecase.NewAccountInteractor(accountRepository),
 	}
 
 	r := chi.NewRouter()
@@ -76,12 +71,6 @@ func serve() error {
 		r.Post("/", uh.Post)
 		r.Get("/{accountUUID}", uh.Get)
 		r.Delete("/{accountUUID}", uh.Delete)
-	})
-
-	r.Route("/departments", func(r chi.Router) {
-		r.Post("/", dh.Post)
-		r.Get("/{departmentUUID}", dh.Get)
-		r.Delete("/{departmentUUID}", dh.Delete)
 	})
 
 	http.ListenAndServe(":8080", r)
