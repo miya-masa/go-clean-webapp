@@ -1,4 +1,4 @@
-NAME     := gotxsand
+NAME     := webapp
 VERSION  := v1.0.0
 REVISION := $(shell git rev-parse --short HEAD)
 

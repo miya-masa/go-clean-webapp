@@ -14,11 +14,6 @@ CREATE TABLE IF NOT EXISTS "account" (
 	"first_name" text,
 	"last_name" text,
 	PRIMARY KEY ("uuid"));
-
-CREATE TABLE IF NOT EXISTS "department" (
-	"uuid" varchar(36),
-	"name" text,
-	PRIMARY KEY ("uuid"));
 `
 
 func initializeData() error {

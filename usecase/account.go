@@ -9,9 +9,8 @@ import (
 )
 
 type AccountStoreInput struct {
-	FirstName      string `json:"first_name"`
-	LastName       string `json:"last_name"`
-	DepartmentUUID string `json:"department_uuid"`
+	FirstName string `json:"first_name"`
+	LastName  string `json:"last_name"`
 }
 
 type AccountInputPort interface {
@@ -20,18 +19,16 @@ type AccountInputPort interface {
 	Delete(ctx context.Context, id string) (int, error)
 }
 
-func NewAccountInteractor(ar entity.AccountRepository, dr entity.DepartmentRepository, tx transaction.Transaction) AccountInputPort {
+func NewAccountInteractor(ar entity.AccountRepository, tx transaction.Transaction) AccountInputPort {
 	return &accountInteractor{
-		accountRepository:    ar,
-		departmentRepository: dr,
-		trancaction:          tx,
+		accountRepository: ar,
+		trancaction:       tx,
 	}
 }
 
 type accountInteractor struct {
-	accountRepository    entity.AccountRepository
-	departmentRepository entity.DepartmentRepository
-	trancaction          transaction.Transaction
+	accountRepository entity.AccountRepository
+	trancaction       transaction.Transaction
 }
 
 func (u *accountInteractor) Find(ctx context.Context, id string) (*entity.Account, error) {
