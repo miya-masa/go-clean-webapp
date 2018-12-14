@@ -18,7 +18,7 @@ func NewAccount(db *sqlx.DB) entity.AccountRepository {
 func (u *accountRepository) Find(ctx context.Context, id string) (*entity.Account, error) {
 	account := &entity.Account{}
 	query := `select
-		a.uuid as uuid,
+	a.uuid as uuid,
 		a.first_name as first_name,
 		a.last_name as last_name,
 		d.uuid as "department.uuid",
@@ -35,17 +35,17 @@ func (u *accountRepository) Find(ctx context.Context, id string) (*entity.Accoun
 }
 
 func (u *accountRepository) Store(ctx context.Context, account *entity.Account) (*entity.Account, error) {
-	tx, err := u.db.Beginx()
+
+	val, err := DoInTx(u.db, func(tx *sqlx.Tx) (interface{}, error) {
+		if _, err := tx.NamedExec("INSERT INTO account(uuid, department_uuid, first_name, last_name) VALUES(:uuid, :department.uuid, :first_name, :last_name)", account); err != nil {
+			return nil, err
+		}
+		return account, nil
+	})
 	if err != nil {
-		tx.Rollback()
 		return nil, err
 	}
-	if _, err := tx.NamedExec("INSERT INTO account(uuid, department_uuid, first_name, last_name) VALUES(:uuid, :department.uuid, :first_name, :last_name)", account); err != nil {
-		tx.Rollback()
-		return nil, err
-	}
-	tx.Commit()
-	return account, nil
+	return val.(*entity.Account), nil
 }
 
 func (u *accountRepository) Delete(ctx context.Context, id string) (int, error) {
