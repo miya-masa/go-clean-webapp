@@ -30,6 +30,22 @@ type accountInteractor struct {
 	accountRepository entity.AccountRepository
 }
 
+func (u *accountInteractor) Find(ctx context.Context, id string) (*entity.Account, error) {
+	return u.accountRepository.Find(ctx, id)
+}
+
+func (u *accountInteractor) Store(ctx context.Context, in *AccountStoreInput) (*entity.Account, error) {
+	return u.accountRepository.Store(ctx, entity.New(in.FirstName, in.FirstName))
+}
+
+func (u *accountInteractor) Delete(ctx context.Context, id string) (int, error) {
+	return u.accountRepository.Delete(ctx, id)
+}
+
+func genUUID() string {
+	return uuid.NewV4().String()
+}
+
 type txAccountInteractor struct {
 	db *sqlx.DB
 }
@@ -60,20 +76,4 @@ func (u *txAccountInteractor) Delete(ctx context.Context, id string) (int, error
 		return NewAccountInteractor(ar).Delete(ctx, id)
 	})
 	return num.(int), err
-}
-
-func (u *accountInteractor) Find(ctx context.Context, id string) (*entity.Account, error) {
-	return u.accountRepository.Find(ctx, id)
-}
-
-func (u *accountInteractor) Store(ctx context.Context, in *AccountStoreInput) (*entity.Account, error) {
-	return u.accountRepository.Store(ctx, entity.New(in.FirstName, in.FirstName))
-}
-
-func (u *accountInteractor) Delete(ctx context.Context, id string) (int, error) {
-	return u.accountRepository.Delete(ctx, id)
-}
-
-func genUUID() string {
-	return uuid.NewV4().String()
 }
