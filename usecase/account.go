@@ -37,15 +37,10 @@ func (u *accountInteractor) Find(ctx context.Context, id string) (*entity.Accoun
 
 func (u *accountInteractor) Store(ctx context.Context, in *AccountStoreInput) (*entity.Account, error) {
 	v, err := u.trancaction.DoInTx(ctx, func(ctx context.Context) (interface{}, error) {
-		dep, err := u.departmentRepository.Find(ctx, in.DepartmentUUID)
-		if err != nil {
-			return nil, err
-		}
 		return u.accountRepository.Store(ctx, &entity.Account{
-			UUID:       genUUID(),
-			Department: dep,
-			FirstName:  in.FirstName,
-			LastName:   in.LastName,
+			UUID:      genUUID(),
+			FirstName: in.FirstName,
+			LastName:  in.LastName,
 		})
 	})
 	return v.(*entity.Account), err

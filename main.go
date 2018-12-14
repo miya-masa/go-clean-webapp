@@ -60,7 +60,7 @@ func serve() error {
 	accountRepository := database.NewAccount(db)
 
 	uh := &web.AccountHandler{
-		Usecase: usecase.NewAccountInteractor(accountRepository),
+		Usecase: usecase.NewAccountInteractor(accountRepository, database.NewTransaction(db)),
 	}
 
 	r := chi.NewRouter()
