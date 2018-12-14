@@ -60,10 +60,6 @@ func serve() error {
 		Usecase: usecase.NewAccountInteractorTx(db),
 	}
 
-	dh := &web.DepartmentHandler{
-		Usecase: usecase.NewDepartmentInteractorTx(db),
-	}
-
 	r := chi.NewRouter()
 	r.Use(middleware.RequestID)
 	r.Use(middleware.Logger)
@@ -72,12 +68,6 @@ func serve() error {
 		r.Post("/", uh.Post)
 		r.Get("/{accountUUID}", uh.Get)
 		r.Delete("/{accountUUID}", uh.Delete)
-	})
-
-	r.Route("/departments", func(r chi.Router) {
-		r.Post("/", dh.Post)
-		r.Get("/{departmentUUID}", dh.Get)
-		r.Delete("/{departmentUUID}", dh.Delete)
 	})
 
 	http.ListenAndServe(":8080", r)

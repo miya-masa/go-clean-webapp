@@ -10,9 +10,8 @@ import (
 )
 
 type AccountStoreInput struct {
-	FirstName      string `json:"first_name"`
-	LastName       string `json:"last_name"`
-	DepartmentUUID string `json:"department_uuid"`
+	FirstName string `json:"first_name"`
+	LastName  string `json:"last_name"`
 }
 
 type AccountInputPort interface {
@@ -21,16 +20,14 @@ type AccountInputPort interface {
 	Delete(ctx context.Context, id string) (int, error)
 }
 
-func NewAccountInteractor(ar entity.AccountRepository, dr entity.DepartmentRepository) AccountInputPort {
+func NewAccountInteractor(ar entity.AccountRepository) AccountInputPort {
 	return &accountInteractor{
-		accountRepository:    ar,
-		departmentRepository: dr,
+		accountRepository: ar,
 	}
 }
 
 type accountInteractor struct {
-	accountRepository    entity.AccountRepository
-	departmentRepository entity.DepartmentRepository
+	accountRepository entity.AccountRepository
 }
 
 type txAccountInteractor struct {
@@ -73,16 +70,7 @@ func (u *accountInteractor) Find(ctx context.Context, id string) (*entity.Accoun
 }
 
 func (u *accountInteractor) Store(ctx context.Context, in *AccountStoreInput) (*entity.Account, error) {
-	dep, err := u.departmentRepository.Find(ctx, in.DepartmentUUID)
-	if err != nil {
-		return nil, err
-	}
-	return u.accountRepository.Store(ctx, &entity.Account{
-		UUID:       genUUID(),
-		Department: dep,
-		FirstName:  in.FirstName,
-		LastName:   in.LastName,
-	})
+	return u.accountRepository.Store(ctx, entity.New(in.FirstName, in.FirstName))
 }
 
 func (u *accountInteractor) Delete(ctx context.Context, id string) (int, error) {

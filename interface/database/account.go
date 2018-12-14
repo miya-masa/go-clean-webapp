@@ -18,13 +18,10 @@ func NewAccount(db *sqlx.Tx) entity.AccountRepository {
 func (u *accountRepository) Find(ctx context.Context, id string) (*entity.Account, error) {
 	account := &entity.Account{}
 	query := `select
-	a.uuid as uuid,
+		a.uuid as uuid,
 		a.first_name as first_name,
-		a.last_name as last_name,
-		d.uuid as "department.uuid",
-		d.name as "department.name"
+		a.last_name as last_name
 	from account as a
-	inner join department d on a.department_uuid = d.uuid
 	where
 		a.uuid = $1`
 
