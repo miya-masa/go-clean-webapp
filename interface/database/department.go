@@ -8,10 +8,10 @@ import (
 )
 
 type departmentRepository struct {
-	db *sqlx.DB
+	db *sqlx.Tx
 }
 
-func NewDepartment(db *sqlx.DB) entity.DepartmentRepository {
+func NewDepartment(db *sqlx.Tx) entity.DepartmentRepository {
 	return &departmentRepository{db: db}
 }
 
@@ -30,37 +30,23 @@ func (u *departmentRepository) Find(ctx context.Context, id string) (*entity.Dep
 	return department, nil
 }
 
-func (u *departmentRepository) Store(ctx context.Context, department *entity.Department) error {
-	tx, err := u.db.Beginx()
-	if err != nil {
-		tx.Rollback()
-		return err
+func (u *departmentRepository) Store(ctx context.Context, department *entity.Department) (*entity.Department, error) {
+	if _, err := u.db.NamedExec("INSERT INTO department(uuid, name) VALUES(:uuid, :name)", department); err != nil {
+		return nil, err
 	}
-	if _, err := tx.NamedExec("INSERT INTO department(uuid, name) VALUES(:uuid, :name)", department); err != nil {
-		tx.Rollback()
-		return err
-	}
-	return tx.Commit()
+	return department, nil
 }
 
 func (u *departmentRepository) Delete(ctx context.Context, id string) (int, error) {
-	tx, err := u.db.Beginx()
-	if err != nil {
-		tx.Rollback()
-		return 0, err
-	}
 	var affected int64
-	r, err := tx.Exec("DELETE FROM department where uuid = ?", id)
+	r, err := u.db.Exec("DELETE FROM department where uuid = ?", id)
 	if err != nil {
-		tx.Rollback()
 		return 0, err
 	}
 	i, err := r.RowsAffected()
 	if err != nil {
-		tx.Rollback()
 		return 0, err
 	}
 	affected += i
-	tx.Commit()
 	return int(affected), nil
 }

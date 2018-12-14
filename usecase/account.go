@@ -3,7 +3,9 @@ package usecase
 import (
 	"context"
 
+	"github.com/jmoiron/sqlx"
 	"github.com/miya-masa/go-clean-webapp/domain/entity"
+	"github.com/miya-masa/go-clean-webapp/interface/database"
 	uuid "github.com/satori/go.uuid"
 )
 
@@ -29,6 +31,41 @@ func NewAccountInteractor(ar entity.AccountRepository, dr entity.DepartmentRepos
 type accountInteractor struct {
 	accountRepository    entity.AccountRepository
 	departmentRepository entity.DepartmentRepository
+}
+
+type txAccountInteractor struct {
+	db *sqlx.DB
+}
+
+func NewAccountInteractorTx(db *sqlx.DB) AccountInputPort {
+	return &txAccountInteractor{db: db}
+}
+
+func (u *txAccountInteractor) Store(ctx context.Context, in *AccountStoreInput) (*entity.Account, error) {
+	v, err := database.DoInTx(u.db, func(tx *sqlx.Tx) (interface{}, error) {
+		ar := database.NewAccount(tx)
+		dr := database.NewDepartment(tx)
+		return NewAccountInteractor(ar, dr).Store(ctx, in)
+	})
+	return v.(*entity.Account), err
+}
+
+func (u *txAccountInteractor) Find(ctx context.Context, id string) (*entity.Account, error) {
+	v, err := database.DoInTx(u.db, func(tx *sqlx.Tx) (interface{}, error) {
+		ar := database.NewAccount(tx)
+		dr := database.NewDepartment(tx)
+		return NewAccountInteractor(ar, dr).Find(ctx, id)
+	})
+	return v.(*entity.Account), err
+}
+
+func (u *txAccountInteractor) Delete(ctx context.Context, id string) (int, error) {
+	num, err := database.DoInTx(u.db, func(tx *sqlx.Tx) (interface{}, error) {
+		ar := database.NewAccount(tx)
+		dr := database.NewDepartment(tx)
+		return NewAccountInteractor(ar, dr).Delete(ctx, id)
+	})
+	return num.(int), err
 }
 
 func (u *accountInteractor) Find(ctx context.Context, id string) (*entity.Account, error) {

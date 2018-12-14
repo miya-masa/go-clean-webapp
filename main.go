@@ -9,7 +9,6 @@ import (
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
 	"github.com/jmoiron/sqlx"
-	"github.com/miya-masa/go-clean-webapp/interface/database"
 	"github.com/miya-masa/go-clean-webapp/usecase"
 	"github.com/miya-masa/go-clean-webapp/web"
 	"github.com/urfave/cli"
@@ -57,15 +56,12 @@ func serve() error {
 		return err
 	}
 
-	accountRepository := database.NewAccount(db)
-	departmentRepository := database.NewDepartment(db)
-
 	uh := &web.AccountHandler{
-		Usecase: usecase.NewAccountInteractor(accountRepository, departmentRepository),
+		Usecase: usecase.NewAccountInteractorTx(db),
 	}
 
 	dh := &web.DepartmentHandler{
-		Usecase: usecase.NewDepartmentInteractor(departmentRepository),
+		Usecase: usecase.NewDepartmentInteractorTx(db),
 	}
 
 	r := chi.NewRouter()
