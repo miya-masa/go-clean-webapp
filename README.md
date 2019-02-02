@@ -1,6 +1,6 @@
 # go-clean-webapp
 
-golang transaction
+Clean Architecture GO
 
 ## Usage
 
