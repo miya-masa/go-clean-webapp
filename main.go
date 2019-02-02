@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"net/http"
@@ -8,9 +9,6 @@ import (
 
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
-	"github.com/jmoiron/sqlx"
-	"github.com/miya-masa/go-clean-webapp/interface/database"
-	"github.com/miya-masa/go-clean-webapp/usecase"
 	"github.com/miya-masa/go-clean-webapp/web"
 	"github.com/urfave/cli"
 )
@@ -50,27 +48,34 @@ func main() {
 	}
 }
 
+func newApplication(ctx context.Context, ah *web.AccountHandler) (Application, error) {
+	return Application{AccountHandler: ah}, nil
+}
+
 func serve() error {
 
-	db, err := sqlx.Connect("postgres", "user=miya password=miya dbname=miya sslmode=disable")
+	ctx := context.Background()
+	app, err := setupApplication(ctx)
 	if err != nil {
 		return err
 	}
+	return app.Start()
+}
 
-	accountRepository := database.NewAccount(db)
+type Application struct {
+	AccountHandler *web.AccountHandler
+}
 
-	uh := &web.AccountHandler{
-		Usecase: usecase.NewAccountInteractor(accountRepository),
-	}
-
+func (a *Application) Start() error {
 	r := chi.NewRouter()
 	r.Use(middleware.RequestID)
 	r.Use(middleware.Logger)
 
 	r.Route("/accounts", func(r chi.Router) {
-		r.Post("/", uh.Post)
-		r.Get("/{accountUUID}", uh.Get)
-		r.Delete("/{accountUUID}", uh.Delete)
+		r.Get("/", a.AccountHandler.List)
+		r.Post("/", a.AccountHandler.Post)
+		r.Get("/{accountUUID}", a.AccountHandler.Get)
+		r.Delete("/{accountUUID}", a.AccountHandler.Delete)
 	})
 
 	http.ListenAndServe(":8080", r)

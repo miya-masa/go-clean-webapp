@@ -15,6 +15,20 @@ func NewAccount(db *sqlx.DB) entity.AccountRepository {
 	return &accountRepository{db: db}
 }
 
+func (u *accountRepository) List(ctx context.Context) ([]*entity.Account, error) {
+	accounts := []*entity.Account{}
+	query := `select
+		a.uuid as uuid,
+		a.first_name as first_name,
+		a.last_name as last_name
+	from account as a
+		`
+	if err := u.db.SelectContext(ctx, &accounts, query); err != nil {
+		return nil, err
+	}
+	return accounts, nil
+}
+
 func (u *accountRepository) Find(ctx context.Context, id string) (*entity.Account, error) {
 	account := &entity.Account{}
 	query := `select

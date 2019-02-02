@@ -13,6 +13,7 @@ type AccountStoreInput struct {
 }
 
 type AccountInputPort interface {
+	List(ctx context.Context) ([]*entity.Account, error)
 	Find(ctx context.Context, id string) (*entity.Account, error)
 	Store(ctx context.Context, in *AccountStoreInput) (*entity.Account, error)
 	Delete(ctx context.Context, id string) (int, error)
@@ -26,6 +27,10 @@ func NewAccountInteractor(ar entity.AccountRepository) AccountInputPort {
 
 type accountInteractor struct {
 	accountRepository entity.AccountRepository
+}
+
+func (u *accountInteractor) List(ctx context.Context) ([]*entity.Account, error) {
+	return u.accountRepository.List(ctx)
 }
 
 func (u *accountInteractor) Find(ctx context.Context, id string) (*entity.Account, error) {

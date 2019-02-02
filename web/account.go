@@ -14,6 +14,25 @@ type AccountHandler struct {
 	Presenter *presenter.AccountPresenter
 }
 
+func NewAccountHandler(uc usecase.AccountInputPort, pr *presenter.AccountPresenter) *AccountHandler {
+	return &AccountHandler{
+		Usecase:   uc,
+		Presenter: pr,
+	}
+}
+
+func (u *AccountHandler) List(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	view := &AccountJsonView{w: w, successCode: http.StatusOK}
+	accounts, err := u.Usecase.List(ctx)
+	if err != nil {
+		logger.Println(err)
+		view.ErrorView(err)
+		return
+	}
+	view.ViewModels(u.Presenter.ToViewModels(accounts))
+}
+
 func (u *AccountHandler) Get(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	accountUUID := chi.URLParam(r, "accountUUID")
