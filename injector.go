@@ -15,12 +15,6 @@ import (
 	"github.com/miya-masa/go-clean-webapp/web"
 )
 
-// applicationSet is the Wire provider set for the Guestbook application that
-// does not depend on the underlying platform.
-var applicationSet = wire.NewSet(
-	newApplication,
-)
-
 func setupApplication(ctx context.Context) (Application, error) {
 	wire.Build(applicationSet, web.NewAccountHandler, usecase.NewAccountInteractor, database.NewAccount, presenter.AccountPresenter{}, db)
 	return Application{}, nil

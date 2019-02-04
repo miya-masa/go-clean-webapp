@@ -7,7 +7,6 @@ package main
 
 import (
 	"context"
-	"github.com/google/wire"
 	"github.com/jmoiron/sqlx"
 	"github.com/miya-masa/go-clean-webapp/interface/database"
 	"github.com/miya-masa/go-clean-webapp/interface/presenter"
@@ -38,12 +37,6 @@ func setupApplication(ctx context.Context) (Application, error) {
 }
 
 // injector.go:
-
-// applicationSet is the Wire provider set for the Guestbook application that
-// does not depend on the underlying platform.
-var applicationSet = wire.NewSet(
-	newApplication,
-)
 
 func db(ctx context.Context) (*sqlx.DB, error) {
 	return sqlx.Connect("postgres", "user=miya password=miya dbname=miya sslmode=disable")

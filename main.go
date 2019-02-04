@@ -9,6 +9,7 @@ import (
 
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
+	"github.com/google/wire"
 	"github.com/miya-masa/go-clean-webapp/web"
 	"github.com/urfave/cli"
 )
@@ -47,6 +48,12 @@ func main() {
 		log.Fatal(err)
 	}
 }
+
+// applicationSet is the Wire provider set for the Guestbook application that
+// does not depend on the underlying platform.
+var applicationSet = wire.NewSet(
+	newApplication,
+)
 
 func newApplication(ctx context.Context, ah *web.AccountHandler) (Application, error) {
 	return Application{AccountHandler: ah}, nil
